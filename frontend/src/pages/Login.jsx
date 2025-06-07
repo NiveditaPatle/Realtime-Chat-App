@@ -1,7 +1,9 @@
 import axios from "axios";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { serverUrl } from "../main";
+import { useDispatch } from "react-redux";
+import { setSelectedUser, setUserData } from "../redux/userSlice";
 
 const Login = () => {
   const [show, setShow] = useState(false);
@@ -9,6 +11,9 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   
 
   const handleLogin = async (e) => {
@@ -24,13 +29,18 @@ const Login = () => {
         { withCredentials: true }
       );
       console.log("result", result);
+      dispatch(setUserData(result.data));
+      dispatch(setSelectedUser(null));
+      navigate("/");
       setEmail("");
       setPassword("");
       setLoading(false);
     } catch (error) {
       console.log("error", error);
-      setErr(error.response?.data?.message || "Login failed. Please try again.");
-      setLoading(false)
+      setErr(
+        error.response?.data?.message || "Login failed. Please try again."
+      );
+      setLoading(false);
     }
   };
 
@@ -52,7 +62,7 @@ const Login = () => {
             placeholder="email"
             className="w-[90%] h-[50px] outline-none border-2 border-primary px-[20px] py-[10px] bg-white rounded-lg shadow-gray-300 shadow-md text-gray-700 text-[19px]"
             value={email}
-            onChange={(e)=>setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
           />
 
           <div className="w-[90%] h-[50px] border-2 border-primary overflow-hidden rounded-lg shadow-gray-300 shadow-md relative">
@@ -69,12 +79,10 @@ const Login = () => {
             >{`${show ? "hide" : "show"}`}</span>
           </div>
 
-          {
-            err && <p className="text-red-500">*{err}</p>
-          }
+          {err && <p className="text-red-500">*{err}</p>}
 
           <button className="px-[20px] py-[10px] bg-primary rounded-2xl shadow-gray-400 shadow-md text-[20px] w-[200px] mt-[20px] font-bold text-gray-800 hover:shadow-inner">
-            { loading ? 'Loading...' : 'Login' }
+            {loading ? "Loading..." : "Login"}
           </button>
 
           <p className="text-gray-700 cursor-pointer">
